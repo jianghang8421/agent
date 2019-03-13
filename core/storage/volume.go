@@ -59,9 +59,11 @@ var rancherDrivers = map[string]bool{
 	"rancher-efs":       true,
 	"rancher-secrets":   true,
 	"secrets-bridge-v2": true,
+	//"rancher-rbd":       true,
 }
 
 func VolumeActivateDocker(volume model.Volume, storagePool model.StoragePool, progress *progress.Progress, client *engineCli.Client) error {
+	log.Infof("Jianghang  call VolumeActivateDocker")
 	if ok, err := IsVolumeActive(volume, storagePool, client); ok {
 		return nil
 	} else if err != nil {
@@ -80,6 +82,7 @@ func VolumeActivateDocker(volume model.Volume, storagePool model.StoragePool, pr
 }
 
 func VolumeRemoveDocker(volume model.Volume, storagePool model.StoragePool, progress *progress.Progress, dockerClient *engineCli.Client, ca *cache.Cache, resourceID string) error {
+	log.Infof("Jianghang  call VolumeRemoveDocker")
 	if ok, err := IsVolumeRemoved(volume, storagePool, dockerClient); err == nil && !ok {
 		rmErr := DoVolumeRemove(volume, storagePool, progress, dockerClient, ca, resourceID)
 		if rmErr != nil {
@@ -92,6 +95,7 @@ func VolumeRemoveDocker(volume model.Volume, storagePool model.StoragePool, prog
 }
 
 func VolumeActivateFlex(volume model.Volume) error {
+	log.Infof("Jianghang  call VolumeActivateFlex")
 	payload := struct{ Name string }{Name: volume.Name}
 	_, err := CallRancherStorageVolumePlugin(volume, Create, payload)
 	if err != nil {
@@ -101,6 +105,7 @@ func VolumeActivateFlex(volume model.Volume) error {
 }
 
 func VolumeRemoveFlex(volume model.Volume) error {
+	log.Infof("Jianghang  call VolumeRemoveFlex")
 	payload := struct{ Name string }{Name: volume.Name}
 	_, err := CallRancherStorageVolumePlugin(volume, Remove, payload)
 	if err != nil {
@@ -110,6 +115,7 @@ func VolumeRemoveFlex(volume model.Volume) error {
 }
 
 func DoVolumeActivate(volume model.Volume, storagePool model.StoragePool, progress *progress.Progress, client *engineCli.Client) error {
+	log.Infof("Jianghang  call DoVolumeActivate")
 	if !isManagedVolume(volume) {
 		return nil
 	}
@@ -149,6 +155,7 @@ func DoVolumeActivate(volume model.Volume, storagePool model.StoragePool, progre
 }
 
 func DoVolumeRemove(volume model.Volume, storagePool model.StoragePool, progress *progress.Progress, dockerClient *engineCli.Client, ca *cache.Cache, resourceID string) error {
+	log.Infof("Jianghang  call DoVolumeRemove")
 	if _, ok := ca.Get(resourceID); ok {
 		ca.Delete(resourceID)
 		return nil
@@ -238,6 +245,7 @@ func pathToVolume(volume model.Volume) string {
 }
 
 func IsVolumeActive(volume model.Volume, storagePool model.StoragePool, dockerClient *engineCli.Client) (bool, error) {
+	log.Infof("Jianghang  call IsVolumeActive")
 	if !isManagedVolume(volume) {
 		return true, nil
 	}
@@ -260,6 +268,7 @@ func rancherStorageSockPath(volume model.Volume) string {
 // IsRancherVolume checks if a volume to be considered as a flex volume if it is in rancherDrivers and the capability is flex
 // raise an error if its rancher-managed driver but the socket file is not available
 func IsRancherVolume(volume model.Volume) (bool, error) {
+	log.Infof("Jianghang  call IsRancherVolume")
 	if _, ok := rancherDrivers[volume.Data.Fields.Driver]; ok {
 		if _, err := os.Stat(rancherStorageSockPath(volume)); err == nil {
 			// check if Capabilities is flex
@@ -275,17 +284,21 @@ func IsRancherVolume(volume model.Volume) (bool, error) {
 				return false, err
 			}
 			if response.Capabilities.Scope == "flex" {
+				log.Infof("Jianghang  call IsRancherVolume Capabilities is flex")
 				return true, nil
 			}
+			log.Infof("Jianghang  call IsRancherVolume Capabilities is not flex")
 			return false, nil
 		}
 		return false, errors.Errorf("socket file not found at %s", rancherStorageSockPath(volume))
 	}
+	log.Infof("Jianghang  IsRancherVolume not in rancherDrivers map")
 	return false, nil
 }
 
 // IsRancher checks if volume driver is rancher managed driver
 func IsRancher(volume model.Volume) (bool, error) {
+	log.Infof("Jianghang  call IsRancher")
 	if _, ok := rancherDrivers[volume.Data.Fields.Driver]; ok {
 		if _, err := os.Stat(rancherStorageSockPath(volume)); err == nil {
 			return true, nil
@@ -296,6 +309,7 @@ func IsRancher(volume model.Volume) (bool, error) {
 }
 
 func IsVolumeRemoved(volume model.Volume, storagePool model.StoragePool, client *engineCli.Client) (bool, error) {
+	log.Infof("Jianghang  call IsVolumeRemoved")
 	if volume.DeviceNumber == 0 {
 		container, err := utils.GetContainer(client, volume.Instance, false)
 		if err != nil {

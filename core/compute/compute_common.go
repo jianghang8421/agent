@@ -139,18 +139,21 @@ func setupVolumes(config *container.Config, instance model.Instance, hostConfig 
 	volumes := instance.Data.Fields.DataVolumes
 	volumesMap := map[string]struct{}{}
 	binds := []string{}
-
+	log.Infof("Jianghang call setupVolumes")
 	rancherManagedVolumeNames := map[string]struct{}{}
 	if vMounts := instance.VolumesFromDataVolumeMounts; len(vMounts) > 0 {
 		for _, volume := range vMounts {
 			if ok, err := storage.IsRancherVolume(volume); err != nil {
+				log.Infof("Jianghang setupVolumes IsRancherVolume 1 err")
 				return err
 			} else if ok {
+				log.Infof("Jianghang setupVolumes IsRancherVolume 1 return true")
 				rancherManagedVolumeNames[volume.Name] = struct{}{}
 			}
 		}
 	}
 	if len(volumes) > 0 {
+		log.Infof("Jianghang setupVolumes len(volumes) > 0")
 		for _, volume := range volumes {
 			parts := strings.SplitN(volume, ":", 3)
 			// don't set rancher managed volume
@@ -210,8 +213,10 @@ func setupVolumes(config *container.Config, instance model.Instance, hostConfig 
 			storagePool := model.StoragePool{}
 			// volume active == exists, possibly not attached to this host
 			if ok, err := storage.IsRancherVolume(vMount); err != nil {
+				log.Infof("Jianghang  setupVolumes IsRancherVolume 2 err")
 				return err
 			} else if !ok {
+				log.Infof("Jianghang  setupVolumes IsRancherVolume 2 reture false")
 				if ok, err := storage.IsVolumeActive(vMount, storagePool, client); !ok && err == nil {
 					if err := storage.DoVolumeActivate(vMount, storagePool, progress, client); err != nil {
 						return errors.Wrap(err, constants.SetupVolumesError+"failed to activate volume")
@@ -223,6 +228,7 @@ func setupVolumes(config *container.Config, instance model.Instance, hostConfig 
 				if ok, err := storage.IsRancher(vMount); err != nil {
 					return err
 				} else if ok {
+					log.Infof("Jianghang  setupVolumes IsRancher reture true")
 					payload := struct {
 						Name    string
 						Options map[string]string `json:"Opts,omitempty"`
@@ -230,6 +236,7 @@ func setupVolumes(config *container.Config, instance model.Instance, hostConfig 
 						Name:    vMount.Name,
 						Options: vMount.Data.Fields.DriverOpts,
 					}
+					log.Infof("Jianghang  setupVolumes CallRancherStorageVolumePlugin Attach")
 					_, err = storage.CallRancherStorageVolumePlugin(vMount, storage.Attach, payload)
 					if err != nil {
 						return err

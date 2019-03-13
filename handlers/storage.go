@@ -59,6 +59,7 @@ func (h *StorageHandler) ImageActivate(event *revents.Event, cli *client.Rancher
 }
 
 func (h *StorageHandler) VolumeActivate(event *revents.Event, cli *client.RancherClient) error {
+	log.Infof("Jianghang call VolumeActivate")
 	var volumeStoragePoolMap model.VolumeStoragePoolMap
 	err := mapstructure.Decode(event.Data["volumeStoragePoolMap"], &volumeStoragePoolMap)
 	if err != nil {
@@ -87,6 +88,7 @@ func (h *StorageHandler) VolumeActivate(event *revents.Event, cli *client.Ranche
 }
 
 func (h *StorageHandler) VolumeRemove(event *revents.Event, cli *client.RancherClient) error {
+	log.Infof("Jianghang call VolumeRemove")
 	var volumeStoragePoolMap model.VolumeStoragePoolMap
 	err := mapstructure.Decode(event.Data["volumeStoragePoolMap"], &volumeStoragePoolMap)
 	if err != nil {

@@ -486,10 +486,14 @@ func configureDNS(dockerClient *client.Client, containerID string) error {
 }
 
 func setupRancherFlexVolume(instance model.Instance, hostConfig *container.HostConfig) error {
+	log.Infof("Jianghang  call  setupRancherFlexVolume")
 	for _, volume := range instance.VolumesFromDataVolumeMounts {
+		log.Infof("Jianghang  setupRancherFlexVolume Name: %s Options: %s", volume.Name, volume.Data.Fields.DriverOpts)
 		if ok, err := storage.IsRancherVolume(volume); err != nil {
+			log.Infof("Jianghang  setupRancherFlexVolume IsRancherVolume err")
 			return err
 		} else if ok {
+			log.Infof("Jianghang  setupRancherFlexVolume IsRancherVolume return true")
 			payload := struct {
 				Name    string
 				Options map[string]string `json:"Opts,omitempty"`
@@ -497,14 +501,17 @@ func setupRancherFlexVolume(instance model.Instance, hostConfig *container.HostC
 				Name:    volume.Name,
 				Options: volume.Data.Fields.DriverOpts,
 			}
+			log.Infof("Jianghang  setupRancherFlexVolume CallRancherStorageVolumePlugin create")
 			_, err := storage.CallRancherStorageVolumePlugin(volume, storage.Create, payload)
 			if err != nil {
 				return err
 			}
+			log.Infof("Jianghang  setupRancherFlexVolume CallRancherStorageVolumePlugin Attach")
 			_, err = storage.CallRancherStorageVolumePlugin(volume, storage.Attach, payload)
 			if err != nil {
 				return err
 			}
+			log.Infof("Jianghang  setupRancherFlexVolume CallRancherStorageVolumePlugin Mount")
 			resp, err := storage.CallRancherStorageVolumePlugin(volume, storage.Mount, payload)
 			if err != nil {
 				return err
@@ -524,10 +531,12 @@ func setupRancherFlexVolume(instance model.Instance, hostConfig *container.HostC
 
 		}
 	}
+	log.Infof("Jianghang  setupRancherFlexVolume return")
 	return nil
 }
 
 func unmountRancherFlexVolume(instance model.Instance) error {
+	log.Infof("Jianghang  call  unmountRancherFlexVolume")
 	for _, volume := range instance.VolumesFromDataVolumeMounts {
 		if ok, err := storage.IsRancherVolume(volume); err != nil {
 			return err

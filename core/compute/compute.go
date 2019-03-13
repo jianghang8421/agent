@@ -74,10 +74,12 @@ func DoInstanceActivate(instance model.Instance, host model.Host, progress *prog
 
 	setupPorts(&config, instance, &hostConfig)
 
+	log.Infof("Jianghang  DoInstanceActivate call  setupVolumes")
 	if err := setupVolumes(&config, instance, &hostConfig, dockerClient, progress); err != nil {
 		return errors.Wrap(err, constants.DoInstanceActivateError+"failed to set up volumes")
 	}
 
+	log.Infof("Jianghang  DoInstanceActivate call  setupRancherFlexVolume")
 	if err := setupRancherFlexVolume(instance, &hostConfig); err != nil {
 		return errors.Wrap(err, constants.DoInstanceActivateError+"failed to set up rancher flex volumes")
 	}
